@@ -81,7 +81,8 @@ class ExperimentConfig(object):
         'volatility': 'formatted_omi_vol.csv',
         'electricity': 'hourly_electricity.csv',
         'traffic': 'hourly_data.csv',
-        'favorita': 'favorita_consolidated.csv'
+        'favorita': 'favorita_consolidated.csv',
+        'ulsan': 'ulsan.csv'
     }
 
     return os.path.join(self.data_folder, csv_map[self.experiment])
@@ -102,7 +103,8 @@ class ExperimentConfig(object):
         'volatility': data_formatters.volatility.VolatilityFormatter,
         'electricity': data_formatters.electricity.ElectricityFormatter,
         'traffic': data_formatters.traffic.TrafficFormatter,
-        'favorita': data_formatters.favorita.FavoritaFormatter
+        'favorita': data_formatters.favorita.FavoritaFormatter,
+        'ulsan': data_formatters.ulsan.UlsanFormatter
     }
 
     return data_formatter_class[self.experiment]()
