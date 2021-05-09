@@ -1,0 +1,11 @@
+CSV_pre-processing
+1. CSV파일 로드
+2. fcst파일들은 Forecast time + forecast 로 시간 맞춰줌
+3. fcst데이터와 obs 데이터 병합
+4. 병합된 데이터 시간 순서대로 정렬
+5. 시간 겹치는 것들은 Forecast time이 늦은 것만 남겨둠
+([train,validation] 셋의 유효한 데이터 수와 [test]셋의 유효한 데이터 수 확인)
+
+
+Data_pre-processing
+1. train, validation, test 데이터 셋 구간 나눔
