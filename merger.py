@@ -46,6 +46,7 @@ if __name__ == '__main__':
         obs_csv_path = args[1] + '_obs_data.csv'
         fcst_csv_path = args[1] + '_fcst_data.csv'
         df_fcst = pd.read_csv(fcst_csv_path)
+        df_fcst = df_fcst[['Forecast time', 'forecast', 'Temperature', 'WindSpeed', 'WindDirection', 'Humidity', 'Cloud']]
         df_fcst = plus_forecast(df_fcst)
         df_fcst = df_fcst.rename({'NEW': 'time'}, axis='columns')
 
@@ -83,7 +84,8 @@ if __name__ == '__main__':
         df_merge = pd.merge(df_merge, energy, how='outer', on='time')
 
 
-        df_reindex = df_merge.sort_values(by=['time'], axis=0)
+        df_reindex = df_merge.sort_values(by=['time', 'Forecast time'], axis=0)
+        df_reindex.drop(columns=["date"], inplace=True)
 
         # debug
         print(fcst_csv_path + ":\n")
