@@ -3,9 +3,20 @@ import pandas as pd
 import datetime
 import email.utils as eutils
 import time
-
 args = sys.argv
+"""
+    Needs:
+    ./csv_data/energy.csv
+    ./csv_data/regionX_fcst_data.csv
+    ./csv_data/regionX_obs_data.csv
+    
+    Usage:
+    python merger.py region
+    python merger.py region1 region2 ...
 
+    Output:
+    ./csv_data/final.csv
+"""
 
 def debug(df, path):
     """
@@ -86,6 +97,23 @@ def obs_process(df, region):
     return(output)
 
 
+def energy_process(df):
+    """
+        energy data processing
+        converts 24:00:00 into normal form
+    """
+    output = df.copy()
+    output['date'] = output['time'].apply(lambda x: x.split()[0])
+    output['time'] = output['time'].apply(lambda x: x.split()[1])
+    output['time'] = output['time'].str.rjust(8, '0')  # 한자릿수 시간 앞에 0 추가 ex) 3시 -> 03시
+    # 23시를 00시로 바꿔주기
+    output.loc[output['time'] == '24:00:00', 'time'] = '00:00:00'
+    output['time'] = output['date'] + ' ' + output['time']
+    output['time'] = pd.to_datetime(output['time'])
+    output.loc[output['time'].dt.hour == 0, 'time'] += datetime.timedelta(days=1)
+    return(output)
+
+
 if __name__ == '__main__':
     """
     arguments:
@@ -101,15 +129,7 @@ if __name__ == '__main__':
         first_pass = 1  # ignore program's first argument
         data_path = './' + 'csv_data' + '/'
         energy = pd.read_csv(data_path + 'energy.csv')
-        energy['date'] = energy['time'].apply(lambda x: x.split()[0])
-        energy['time'] = energy['time'].apply(lambda x: x.split()[1])
-        energy['time'] = energy['time'].str.rjust(8, '0')  # 한자릿수 시간 앞에 0 추가 ex) 3시 -> 03시
-        # 23시를 00시로 바꿔주기
-        energy.loc[energy['time'] == '24:00:00', 'time'] = '00:00:00'
-        energy['time'] = energy['date'] + ' ' + energy['time']
-        energy['time'] = pd.to_datetime(energy['time'])
-        energy.loc[energy['time'].dt.hour == 0, 'time'] += datetime.timedelta(days=1)
-
+        energy = energy_process(energy)
         for x in args:
             if first_pass == 1:
                 first_pass = 0
