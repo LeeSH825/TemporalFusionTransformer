@@ -1,9 +1,3 @@
-import sys
-import pandas as pd
-import datetime
-import email.utils as eutils
-import time
-args = sys.argv
 """
     Needs:
     ./csv_data/energy.csv
@@ -17,12 +11,18 @@ args = sys.argv
     Output:
     ./csv_data/final.csv
 """
+import sys
+import pandas as pd
+import datetime
+import email.utils as eutils
+import time
+args = sys.argv
 
 def debug(df, path):
     """
         print file path, dataframe, column info
     """
-    print(path + ":\n")
+    print(path + ":", end='\n')
     print(df)
     print("col:\n", df.columns)
     print("\n")
@@ -102,11 +102,11 @@ if __name__ == '__main__':
     """
     Args:
         region: array for region data ([0]: first arg, [1]: second arg)
-        region_df: array for processed multiple regions' dataframe
+        region_df_set: array for processed multiple regions' dataframe
         data_path: file folder to load and save .csv files(TODO: set by arguments?)
     """
     region = []
-    region_df = []
+    region_df_set = []
     if len(args) == 1:
         exit()
     else:
@@ -135,16 +135,24 @@ if __name__ == '__main__':
                 temp_reindex_dropped = temp_reindex.drop(columns=["date", "forecast"], inplace=False)
                 temp_duplicated = temp_reindex_dropped.drop_duplicates(subset='time', keep='last', inplace=False)
                 temp_duplicated_dropped = temp_duplicated.drop(columns=["fcst_fcst"], inplace=False)
-                region_df.append(temp_duplicated_dropped)
+                region_df_set.append(temp_duplicated_dropped)
+                print('Processing Done. (region: ' + x + ')')
 
         # combining region dataframes
-        df_combined = pd.concat(region_df, ignore_index=True)
+        df_combined = pd.concat(region_df_set, ignore_index=True)
         df_combined.dropna(subset=['region'], how='any', axis=0, inplace=True)
-        debug(df_combined, 'combined')
+
+        # debug
+        # debug(df_combined, 'combined')
 
         # save to file
+        """
         region_str = ''
         for x in region:
             region_str = region_str + x
-        # df_combined.to_csv(data_path + region_str + 'final' + '.csv', index=False)
+        df_combined.to_csv(data_path + region_str + 'final' + '.csv', index=False)
         print('saved to: ', data_path + region_str + 'final' + '.csv\n')
+        """
+        print('Combining Done.')
+        df_combined.to_csv(data_path + 'final' + '.csv', index=False)
+        print('Saved to: ', data_path + 'final' + '.csv')
