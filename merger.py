@@ -25,20 +25,7 @@ def debug(df, path):
     print(path + ":\n")
     print(df)
     print("col:\n", df.columns)
-    print("\n\n")
-
-
-def tag_region(df, region):
-    """
-        tag each region to distinguish
-    """
-    for col_name in df.columns.values:
-        if col_name == 'time':
-            continue
-        elif col_name == 'region':
-            continue
-        else:
-            df.rename(columns={col_name: region + '_' + col_name}, inplace=True)
+    print("\n")
 
 
 def plus_forecast(df):
@@ -73,7 +60,6 @@ def  fcst_process(df, region):
                             'Humidity': 'fcst_humid', \
                             'Cloud': 'fcst_cloud'}, \
                             axis='columns')
-    tag_region(output, region)
     return(output)
 
 
@@ -85,15 +71,14 @@ def obs_process(df, region):
     output = df.copy()
     output = output.rename({'일시': 'time'}, axis='columns')
     output['time'] = pd.to_datetime(output['time'])
-    output = output.rename({'지점': 'region', \
+    output = output.rename({'지점명': 'region', \
                             '기온(°C)': 'obs_temp', \
                             '풍속(m/s)': 'obs_windSpd', \
                             '풍향(16방위)': 'obs_windDir', \
                             '습도(%)': 'obs_humid', \
                             '전운량(10분위)': 'obs_cloud'}, \
                             axis='columns')
-    output.drop(columns=["지점명"], inplace=True)
-    tag_region(output, region)
+    output.drop(columns=["지점"], inplace=True)
     return(output)
 
 
@@ -105,8 +90,7 @@ def energy_process(df):
     output = df.copy()
     output['date'] = output['time'].apply(lambda x: x.split()[0])
     output['time'] = output['time'].apply(lambda x: x.split()[1])
-    output['time'] = output['time'].str.rjust(8, '0')  # 한자릿수 시간 앞에 0 추가 ex) 3시 -> 03시
-    # 23시를 00시로 바꿔주기
+    output['time'] = output['time'].str.rjust(8, '0')
     output.loc[output['time'] == '24:00:00', 'time'] = '00:00:00'
     output['time'] = output['date'] + ' ' + output['time']
     output['time'] = pd.to_datetime(output['time'])
@@ -116,13 +100,13 @@ def energy_process(df):
 
 if __name__ == '__main__':
     """
-    arguments:
+    Args:
         region: array for region data ([0]: first arg, [1]: second arg)
-        merged_df: array for process multiple regions
-        data_path: file folde to load and save .csv files(set by arguments?)
+        region_df: array for processed multiple regions' dataframe
+        data_path: file folder to load and save .csv files(TODO: set by arguments?)
     """
     region = []
-    merged_df = []
+    region_df = []
     if len(args) == 1:
         exit()
     else:
@@ -130,6 +114,8 @@ if __name__ == '__main__':
         data_path = './' + 'csv_data' + '/'
         energy = pd.read_csv(data_path + 'energy.csv')
         energy = energy_process(energy)
+
+        # process each region's data file
         for x in args:
             if first_pass == 1:
                 first_pass = 0
@@ -140,15 +126,25 @@ if __name__ == '__main__':
                 df_fcst = fcst_process(df_fcst, x)
                 df_obs = pd.read_csv(obs_csv_path)
                 df_obs = obs_process(df_obs, x)
-                region.append(x)
-                merge_temp = pd.merge(df_obs, df_fcst, how='outer', on='time')
-                merge_temp = pd.merge(merge_temp, energy, how='outer', on='time')
-                merge_temp_reindex = merge_temp.sort_values(by=['time', x + '_' + 'fcst_fcst'], axis=0)
-                merge_temp_reindex.drop(columns=["date", x + '_' + "forecast"], inplace=True)
-                merge_temp_duplicated = merge_temp_reindex.drop_duplicates(subset='time', keep='last', inplace=False)
-                merge_temp_duplicated.drop(columns=[x + '_' + "fcst_fcst"], inplace=True)
-                merged_df.append(merge_temp_duplicated)
-        df_combined = pd.concat(merged_df, ignore_index=True)
+                region.append(x + '_')
+
+                # merging obs + fcst + energy = region_df
+                temp = pd.merge(df_obs, df_fcst, how='outer', on='time')
+                temp = pd.merge(temp, energy, how='outer', on='time')
+                temp_reindex = temp.sort_values(by=['time', 'fcst_fcst'], axis=0)
+                temp_reindex_dropped = temp_reindex.drop(columns=["date", "forecast"], inplace=False)
+                temp_duplicated = temp_reindex_dropped.drop_duplicates(subset='time', keep='last', inplace=False)
+                temp_duplicated_dropped = temp_duplicated.drop(columns=["fcst_fcst"], inplace=False)
+                region_df.append(temp_duplicated_dropped)
+
+        # combining region dataframes
+        df_combined = pd.concat(region_df, ignore_index=True)
         df_combined.dropna(subset=['region'], how='any', axis=0, inplace=True)
         debug(df_combined, 'combined')
-        df_combined.to_csv(data_path + 'final' + '.csv', index=False)
+
+        # save to file
+        region_str = ''
+        for x in region:
+            region_str = region_str + x
+        # df_combined.to_csv(data_path + region_str + 'final' + '.csv', index=False)
+        print('saved to: ', data_path + region_str + 'final' + '.csv\n')
