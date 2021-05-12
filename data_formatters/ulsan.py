@@ -22,6 +22,7 @@ Defines dataset specific column definitions and data transformations.
 import data_formatters.base
 import libs.utils as utils
 import sklearn.preprocessing
+import pandas as pd
 
 GenericDataFormatter = data_formatters.base.GenericDataFormatter
 DataTypes = data_formatters.base.DataTypes
@@ -38,7 +39,8 @@ class UlsanFormatter(GenericDataFormatter):
   """
 
   _column_definition = [
-      ('ID', DataTypes.CATEGORICAL, InputTypes.ID),
+      ('id', DataTypes.CATEGORICAL, InputTypes.ID),
+      ('Region', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
       ('energy', DataTypes.REAL_VALUED, InputTypes.TARGET),
       ('temperature', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
       ('wind_speed', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
@@ -47,9 +49,8 @@ class UlsanFormatter(GenericDataFormatter):
       ('cloud', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
       ('date', DataTypes.DATE, InputTypes.TIME),
       ('month', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-      ('week_of_year', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-      ('day_of_month', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-      ('week_of_year', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
+      # ('week_of_year', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
+      ('day_of_month', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT)
   ]
 
   def __init__(self):
@@ -61,7 +62,7 @@ class UlsanFormatter(GenericDataFormatter):
     self._target_scaler = None
     self._num_classes_per_cat_input = None
 
-  def split_data(self, df, valid_boundary=2016, test_boundary=2018):
+  def split_data(self, df):
     """Splits data frame into training-validation-test data frames.
 
     This also calibrates scaling object, and transforms data for each split.
@@ -74,13 +75,16 @@ class UlsanFormatter(GenericDataFormatter):
     Returns:
       Tuple of transformed (train, valid, test) data.
     """
-
+    valid_boundary = pd.to_datetime('2019-12-01 00:00:00')
+    test_boundary = pd.to_datetime('2020-07-03 00:00:00')
     print('Formatting train-valid-test splits.')
 
     index = df['date']
+    index = pd.to_datetime(index)
     train = df.loc[index < valid_boundary]
     valid = df.loc[(index >= valid_boundary) & (index < test_boundary)]
-    test = df.loc[(index >= test_boundary) & (df.index <= '2019-06-28')]
+    test = df.loc[(index >= test_boundary)]
+    print(df.columns)
 
     self.set_scalers(train)
 

@@ -564,6 +564,43 @@ def process_favorita(config):
   temporal.to_csv(config.data_csv_path)
 
 
+def process_ulsan(config):
+    """
+    info.
+    """
+    data_folder = config.data_folder
+    csv_path = 'csv_data/processed.csv'
+
+    df_raw = pd.read_csv(csv_path)
+
+    print("Loading Ulsan data is done. Adding extra inputs")
+
+    # make new DataFrame for model input
+    df = pd.DataFrame()
+    df['date'] = pd.to_datetime(df_raw['date'])
+    df['month'] = df['date'].dt.month
+    df['week_of_year'] = df['date'].dt.isocalendar().week
+    df['day_of_month'] = df['date'].dt.day
+
+    df['temperature'] = df_raw['temperature']
+    df['wind_speed'] = df_raw['wind_speed']
+    df['wind_direction'] = df_raw['wind_direction']
+    df['humidity'] = df_raw['humidity']
+    df['cloud'] = df_raw['cloud']
+
+    df['ID'] = df_raw['id']
+    df['energy'] = df_raw['energy']
+
+    df['Region'] = df_raw['region']
+    df['days_from_start'] = df_raw['days_from_start']
+
+    output_file = config.data_csv_path
+    print('Completed formatting, saving to {}'.format(output_file))
+    df.to_csv(output_file)
+
+    print('Done.')
+
+
 # Core routine.
 def main(expt_name, force_download, output_folder):
   """Runs main download routine.
@@ -591,7 +628,8 @@ def main(expt_name, force_download, output_folder):
       'volatility': download_volatility,
       'electricity': download_electricity,
       'traffic': download_traffic,
-      'favorita': process_favorita
+      'favorita': process_favorita,
+      'ulsan': process_ulsan
   }
 
   if expt_name not in download_functions:

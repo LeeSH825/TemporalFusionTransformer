@@ -80,13 +80,14 @@ if __name__ == '__main__':
     boundary_rate = (train_rate + valid_rate) / (train_rate + valid_rate + test_rate)
     processed_df_set = []
     print('valid region: ( ', end='')
-    for name, group in unprocessed_df.groupby('region'):
+    for name, group in unprocessed_df.groupby('ID'):
         # common data type classifier
         df = pd.DataFrame()
         print(name, end='')
         print('(#=' + str(len(group)) + ')', end=' ')
         group.reset_index(inplace=True)
-        df['id'] = group['region']
+        df['id'] = group['ID']
+        df['region'] = group['region']
         df['date'] = pd.to_datetime(group['time'])
         df['month'] = df['date'].dt.month
         df['week_of_year'] = df['date'].dt.isocalendar().week
@@ -102,20 +103,21 @@ if __name__ == '__main__':
         df['cloud'] = boundary_slice(group, 'cloud', boundary)
 
         # copy energy values
-        df['dangjin_floating'] = pd.DataFrame(group['dangjin_floating'], columns=['dangjin_floating'])
-        df['dangjin_warehouse'] = pd.DataFrame(group['dangjin_warehouse'], columns=['dangjin_warehouse'])
-        df['dangjin'] = pd.DataFrame(group['dangjin'], columns=['dangjin'])
-        df['ulsan'] = pd.DataFrame(group['ulsan'], columns=['ulsan'])
+        # df['dangjin_floating'] = pd.DataFrame(group['dangjin_floating'], columns=['dangjin_floating'])
+        # df['dangjin_warehouse'] = pd.DataFrame(group['dangjin_warehouse'], columns=['dangjin_warehouse'])
+        # df['dangjin'] = pd.DataFrame(group['dangjin'], columns=['dangjin'])
+        # df['ulsan'] = pd.DataFrame(group['ulsan'], columns=['ulsan'])
+        df['energy'] = group['energy']
 
         # debug
-        # debug(df, name)
+        debug(df, name)
         processed_df_set.append(df)
     print(')')
-    print('Select with rate( test : validation : test ) = (', train_rate, ':', valid_rate, ':', test_rate, ')' )
+    print('Select with rate( test : validation : test ) = (', train_rate, ':', valid_rate, ':', test_rate, ')')
     processed_df = pd.concat(processed_df_set, ignore_index=True)
 
     # debug
-    # debug(processed_df, 'processed')
+    debug(processed_df, 'processed')
 
     print('Selection Done.')
     processed_df.to_csv(data_path + 'processed' + '.csv', index=False)

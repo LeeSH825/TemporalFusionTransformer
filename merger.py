@@ -130,12 +130,24 @@ if __name__ == '__main__':
 
                 # merging obs + fcst + energy = region_df
                 temp = pd.merge(df_obs, df_fcst, how='outer', on='time')
-                temp = pd.merge(temp, energy, how='outer', on='time')
+                debug(energy, 'energy')
+                # temp = pd.merge(temp, energy, how='outer', on='time')
                 temp_reindex = temp.sort_values(by=['time', 'fcst_fcst'], axis=0)
-                temp_reindex_dropped = temp_reindex.drop(columns=["date", "forecast"], inplace=False)
+                debug(temp_reindex, 'temp_reindex')
+                # temp_reindex_dropped = temp_reindex.drop(columns=["date", "forecast"], inplace=False)
+                temp_reindex_dropped = temp_reindex.drop(columns=["forecast"], inplace=False)
                 temp_duplicated = temp_reindex_dropped.drop_duplicates(subset='time', keep='last', inplace=False)
                 temp_duplicated_dropped = temp_duplicated.drop(columns=["fcst_fcst"], inplace=False)
-                region_df_set.append(temp_duplicated_dropped)
+                for col_mem in energy.columns:
+                    if x in col_mem:
+                        temp1 = temp_duplicated_dropped.copy()
+                        temp1['energy'] = pd.DataFrame(energy[col_mem], columns=[col_mem])
+                        # temp1['ID'] = col_mem
+                        temp1.insert(1, 'ID', col_mem)
+                        debug(temp1, 'temp1')
+                        region_df_set.append(temp1)
+                    else:
+                        continue
                 print('Processing Done. (region: ' + x + ')')
 
         # combining region dataframes
@@ -143,7 +155,7 @@ if __name__ == '__main__':
         df_combined.dropna(subset=['region'], how='any', axis=0, inplace=True)
 
         # debug
-        # debug(df_combined, 'combined')
+        debug(df_combined, 'combined')
 
         # save to file
         """
