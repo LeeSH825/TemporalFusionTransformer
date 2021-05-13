@@ -577,6 +577,7 @@ def process_ulsan(config):
 
     # make new DataFrame for model input
     df = pd.DataFrame()
+    df['ID'] = df_raw['id']
     df['date'] = pd.to_datetime(df_raw['date'])
     df['month'] = df['date'].dt.month
     df['week_of_year'] = df['date'].dt.isocalendar().week
@@ -588,7 +589,6 @@ def process_ulsan(config):
     df['humidity'] = df_raw['humidity']
     df['cloud'] = df_raw['cloud']
 
-    df['ID'] = df_raw['id']
     df['energy'] = df_raw['energy']
 
     df['Region'] = df_raw['region']

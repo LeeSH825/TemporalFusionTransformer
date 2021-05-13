@@ -39,7 +39,7 @@ class UlsanFormatter(GenericDataFormatter):
   """
 
   _column_definition = [
-      ('id', DataTypes.CATEGORICAL, InputTypes.ID),
+      ('ID', DataTypes.CATEGORICAL, InputTypes.ID),
       ('Region', DataTypes.CATEGORICAL, InputTypes.STATIC_INPUT),
       ('energy', DataTypes.REAL_VALUED, InputTypes.TARGET),
       ('temperature', DataTypes.REAL_VALUED, InputTypes.OBSERVED_INPUT),
@@ -84,6 +84,7 @@ class UlsanFormatter(GenericDataFormatter):
     train = df.loc[index < valid_boundary]
     valid = df.loc[(index >= valid_boundary) & (index < test_boundary)]
     test = df.loc[(index >= test_boundary)]
+    print(df)
     print(df.columns)
 
     self.set_scalers(train)
@@ -195,8 +196,8 @@ class UlsanFormatter(GenericDataFormatter):
     """Returns fixed model parameters for experiments."""
 
     fixed_params = {
-        'total_time_steps': 252 + 5,
-        'num_encoder_steps': 252,
+        'total_time_steps': 8 * 24,
+        'num_encoder_steps': 7 * 24,
         'num_epochs': 100,
         'early_stopping_patience': 5,
         'multiprocessing_workers': 5,
@@ -209,11 +210,11 @@ class UlsanFormatter(GenericDataFormatter):
 
     model_params = {
         'dropout_rate': 0.3,
-        'hidden_layer_size': 160,
-        'learning_rate': 0.01,
-        'minibatch_size': 64,
-        'max_gradient_norm': 0.01,
-        'num_heads': 1,
+        'hidden_layer_size': 200,
+        'learning_rate': 0.001,
+        'minibatch_size': 128,
+        'max_gradient_norm': 0.1,
+        'num_heads': 4,
         'stack_size': 1
     }
 

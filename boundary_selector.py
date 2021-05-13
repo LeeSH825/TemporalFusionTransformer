@@ -86,7 +86,7 @@ if __name__ == '__main__':
         print(name, end='')
         print('(#=' + str(len(group)) + ')', end=' ')
         group.reset_index(inplace=True)
-        df['id'] = group['ID']
+        df['id'] = group['ID'] # ID: plant
         df['region'] = group['region']
         df['date'] = pd.to_datetime(group['time'])
         df['month'] = df['date'].dt.month
@@ -103,21 +103,17 @@ if __name__ == '__main__':
         df['cloud'] = boundary_slice(group, 'cloud', boundary)
 
         # copy energy values
-        # df['dangjin_floating'] = pd.DataFrame(group['dangjin_floating'], columns=['dangjin_floating'])
-        # df['dangjin_warehouse'] = pd.DataFrame(group['dangjin_warehouse'], columns=['dangjin_warehouse'])
-        # df['dangjin'] = pd.DataFrame(group['dangjin'], columns=['dangjin'])
-        # df['ulsan'] = pd.DataFrame(group['ulsan'], columns=['ulsan'])
         df['energy'] = group['energy']
 
         # debug
-        debug(df, name)
+        # debug(df, name)
         processed_df_set.append(df)
     print(')')
     print('Select with rate( test : validation : test ) = (', train_rate, ':', valid_rate, ':', test_rate, ')')
     processed_df = pd.concat(processed_df_set, ignore_index=True)
 
     # debug
-    debug(processed_df, 'processed')
+    # debug(processed_df, 'processed')
 
     print('Selection Done.')
     processed_df.to_csv(data_path + 'processed' + '.csv', index=False)
