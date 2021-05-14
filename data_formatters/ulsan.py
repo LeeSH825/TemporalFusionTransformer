@@ -50,7 +50,8 @@ class UlsanFormatter(GenericDataFormatter):
       ('date', DataTypes.DATE, InputTypes.TIME),
       ('month', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
       # ('week_of_year', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
-      ('day_of_month', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT)
+      ('day_of_month', DataTypes.CATEGORICAL, InputTypes.KNOWN_INPUT),
+      ('days_from_start', DataTypes.REAL_VALUED, InputTypes.KNOWN_INPUT)
   ]
 
   def __init__(self):
@@ -75,17 +76,21 @@ class UlsanFormatter(GenericDataFormatter):
     Returns:
       Tuple of transformed (train, valid, test) data.
     """
-    valid_boundary = pd.to_datetime('2019-12-01 00:00:00')
+    valid_boundary = pd.to_datetime('2019-12-21 00:00:00')
     test_boundary = pd.to_datetime('2020-07-03 00:00:00')
+    end_time = pd.to_datetime('2021-01-31 23:00:00')
     print('Formatting train-valid-test splits.')
 
     index = df['date']
     index = pd.to_datetime(index)
     train = df.loc[index < valid_boundary]
     valid = df.loc[(index >= valid_boundary) & (index < test_boundary)]
-    test = df.loc[(index >= test_boundary)]
-    print(df)
-    print(df.columns)
+    test = df.loc[(index >= test_boundary) & (index < end_time)]
+    # train = df.loc[index < test_boundary]
+    # valid = df.loc[(index >= valid_boundary) & (index < test_boundary)]
+    # test = df.loc[(index >= test_boundary)]
+    # print(df)
+    # print(df.columns)
 
     self.set_scalers(train)
 
@@ -196,7 +201,7 @@ class UlsanFormatter(GenericDataFormatter):
     """Returns fixed model parameters for experiments."""
 
     fixed_params = {
-        'total_time_steps': 8 * 24,
+        'total_time_steps': 8 *24,
         'num_encoder_steps': 7 * 24,
         'num_epochs': 100,
         'early_stopping_patience': 5,
@@ -209,11 +214,11 @@ class UlsanFormatter(GenericDataFormatter):
     """Returns default optimised model parameters."""
 
     model_params = {
-        'dropout_rate': 0.3,
-        'hidden_layer_size': 200,
-        'learning_rate': 0.001,
+        'dropout_rate': 0.1,
+        'hidden_layer_size': 320,
+        'learning_rate': 0.01,
         'minibatch_size': 128,
-        'max_gradient_norm': 0.1,
+        'max_gradient_norm': 1,
         'num_heads': 4,
         'stack_size': 1
     }

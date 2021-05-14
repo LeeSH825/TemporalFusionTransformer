@@ -151,6 +151,7 @@ if __name__ == '__main__':
 
         # combining region dataframes
         df_combined = pd.concat(region_df_set, ignore_index=True)
+        df_output = df_combined.fillna(0)
         # df_combined.dropna(subset=['region'], how='any', axis=0, inplace=True)
 
         # debug
@@ -165,5 +166,5 @@ if __name__ == '__main__':
         print('saved to: ', data_path + region_str + 'final' + '.csv\n')
         """
         print('Combining Done.')
-        df_combined.to_csv(data_path + 'final' + '.csv', index=False)
+        df_output.to_csv(data_path + 'final' + '.csv', index=False)
         print('Saved to: ', data_path + 'final' + '.csv')
