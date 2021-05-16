@@ -14,7 +14,6 @@
 import sys
 import pandas as pd
 import datetime
-import email.utils as eutils
 import time
 args = sys.argv
 

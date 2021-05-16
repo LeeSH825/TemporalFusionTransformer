@@ -29,7 +29,7 @@ DataTypes = data_formatters.base.DataTypes
 InputTypes = data_formatters.base.InputTypes
 
 
-class UlsanFormatter(GenericDataFormatter):
+class DaconFormatter(GenericDataFormatter):
   """Defines and formats data for the volatility dataset.
 
   Attributes:
@@ -217,7 +217,7 @@ class UlsanFormatter(GenericDataFormatter):
         'dropout_rate': 0.1,
         'hidden_layer_size': 320,
         'learning_rate': 0.01,
-        'minibatch_size': 128,
+        'minibatch_size': 64    ,
         'max_gradient_norm': 1,
         'num_heads': 4,
         'stack_size': 1

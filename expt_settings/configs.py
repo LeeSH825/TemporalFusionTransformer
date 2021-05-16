@@ -26,7 +26,8 @@ import data_formatters.electricity
 import data_formatters.favorita
 import data_formatters.traffic
 import data_formatters.volatility
-import data_formatters.ulsan
+import data_formatters.dacon
+# import data_formatters.ulsan
 
 
 class ExperimentConfig(object):
@@ -43,7 +44,7 @@ class ExperimentConfig(object):
       experiment.
   """
 
-  default_experiments = ['volatility', 'electricity', 'traffic', 'favorita', 'ulsan']
+  default_experiments = ['volatility', 'electricity', 'traffic', 'favorita', 'dacon', 'ulsan']
 
   def __init__(self, experiment='volatility', root_folder=None):
     """Creates configs based on default experiment chosen.
@@ -83,6 +84,7 @@ class ExperimentConfig(object):
         'electricity': 'hourly_electricity.csv',
         'traffic': 'hourly_data.csv',
         'favorita': 'favorita_consolidated.csv',
+        'dacon': 'dacon_data.csv',
         'ulsan': 'ulsan_data.csv'
     }
 
@@ -105,7 +107,8 @@ class ExperimentConfig(object):
         'electricity': data_formatters.electricity.ElectricityFormatter,
         'traffic': data_formatters.traffic.TrafficFormatter,
         'favorita': data_formatters.favorita.FavoritaFormatter,
-        'ulsan': data_formatters.ulsan.UlsanFormatter
+        'dacon': data_formatters.dacon.DaconFormatter,
+        'ulsan': data_formatters.dacon.UlsanFormatter
     }
 
     return data_formatter_class[self.experiment]()

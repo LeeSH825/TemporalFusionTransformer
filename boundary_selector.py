@@ -9,9 +9,6 @@
         ./csv_data/*final_slected.csv
 
     TODO:
-        only one energy value for one region
-        print term of (training:validation:test)
-        embed to data_formatters/ulsna.py: split_data()
         remove NaN of fcst & compare [valid: NaN] ratio
 """
 
